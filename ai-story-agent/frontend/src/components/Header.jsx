@@ -14,7 +14,7 @@ export default function Header() {
           </div>
         </div>
         <span className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400 sm:inline">
-          React · FastAPI · OpenAI · ElevenLabs
+          React · FastAPI · Gemini · ElevenLabs
         </span>
       </div>
     </header>

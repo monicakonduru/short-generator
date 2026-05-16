@@ -6,6 +6,7 @@ export default function TopicForm({
   onSubmit,
   isGenerating,
   disabled,
+  error,
 }) {
   return (
     <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
@@ -50,6 +51,12 @@ export default function TopicForm({
             </button>
           ))}
         </div>
+
+        {error && (
+          <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"

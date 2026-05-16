@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
+import axios from 'axios'
+import { useCallback, useState } from 'react'
 import Header from './components/Header'
 import TopicForm from './components/TopicForm'
 import PipelineProgress from './components/PipelineProgress'
@@ -6,7 +7,8 @@ import ResultsPanel from './components/ResultsPanel'
 import { PIPELINE_STEPS } from './constants/pipeline'
 import { buildMockResults } from './utils/mockResults'
 
-const STEP_MS = 700
+const API_URL = 'http://127.0.0.1:8000'
+const DEFAULT_STYLE = 'emotional, suspenseful, immersive'
 
 export default function App() {
   const [topic, setTopic] = useState('')
@@ -15,36 +17,36 @@ export default function App() {
   const [isComplete, setIsComplete] = useState(false)
   const [results, setResults] = useState(null)
   const [activeTab, setActiveTab] = useState('script')
-  const timersRef = useRef([])
+  const [error, setError] = useState(null)
 
-  const clearTimers = useCallback(() => {
-    timersRef.current.forEach(clearTimeout)
-    timersRef.current = []
-  }, [])
-
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback(async () => {
     const trimmed = topic.trim()
     if (!trimmed || isGenerating) return
 
-    clearTimers()
     setIsGenerating(true)
     setIsComplete(false)
     setResults(null)
+    setError(null)
     setCurrentStepIndex(0)
     setActiveTab('script')
 
-    PIPELINE_STEPS.forEach((_, index) => {
-      const timer = setTimeout(() => {
-        setCurrentStepIndex(index)
-        if (index === PIPELINE_STEPS.length - 1) {
-          setResults(buildMockResults(trimmed))
-          setIsGenerating(false)
-          setIsComplete(true)
-        }
-      }, index * STEP_MS)
-      timersRef.current.push(timer)
-    })
-  }, [topic, isGenerating, clearTimers])
+    try {
+      const { data } = await axios.post(`${API_URL}/generate-script`, {
+        topic: trimmed,
+        style: DEFAULT_STYLE,
+      })
+
+      setResults({ ...buildMockResults(trimmed), script: data.script })
+      setCurrentStepIndex(PIPELINE_STEPS.length - 1)
+      setIsComplete(true)
+    } catch (err) {
+      const message =
+        err.response?.data?.detail ?? err.message ?? 'Failed to generate script'
+      setError(typeof message === 'string' ? message : JSON.stringify(message))
+    } finally {
+      setIsGenerating(false)
+    }
+  }, [topic, isGenerating])
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -71,6 +73,7 @@ export default function App() {
               onSubmit={handleGenerate}
               isGenerating={isGenerating}
               disabled={!topic.trim()}
+              error={error}
             />
             <PipelineProgress
               currentStepIndex={currentStepIndex}
@@ -89,7 +92,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-white/8 py-4 text-center text-xs text-zinc-600">
-        Backend not connected — UI preview with mock pipeline timing
+        Script from Gemini API · other pipeline steps still mocked
       </footer>
     </div>
   )
