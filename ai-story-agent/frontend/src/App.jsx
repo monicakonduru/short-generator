@@ -1,122 +1,96 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useCallback, useRef, useState } from 'react'
+import Header from './components/Header'
+import TopicForm from './components/TopicForm'
+import PipelineProgress from './components/PipelineProgress'
+import ResultsPanel from './components/ResultsPanel'
+import { PIPELINE_STEPS } from './constants/pipeline'
+import { buildMockResults } from './utils/mockResults'
 
-function App() {
-  const [count, setCount] = useState(0)
+const STEP_MS = 700
+
+export default function App() {
+  const [topic, setTopic] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [currentStepIndex, setCurrentStepIndex] = useState(-1)
+  const [isComplete, setIsComplete] = useState(false)
+  const [results, setResults] = useState(null)
+  const [activeTab, setActiveTab] = useState('script')
+  const timersRef = useRef([])
+
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+  }, [])
+
+  const handleGenerate = useCallback(() => {
+    const trimmed = topic.trim()
+    if (!trimmed || isGenerating) return
+
+    clearTimers()
+    setIsGenerating(true)
+    setIsComplete(false)
+    setResults(null)
+    setCurrentStepIndex(0)
+    setActiveTab('script')
+
+    PIPELINE_STEPS.forEach((_, index) => {
+      const timer = setTimeout(() => {
+        setCurrentStepIndex(index)
+        if (index === PIPELINE_STEPS.length - 1) {
+          setResults(buildMockResults(trimmed))
+          setIsGenerating(false)
+          setIsComplete(true)
+        }
+      }, index * STEP_MS)
+      timersRef.current.push(timer)
+    })
+  }, [topic, isGenerating, clearTimers])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <div className="flex min-h-svh flex-col">
+      <Header />
+
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mb-8 text-center sm:mb-10">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-violet-400/90">
+            AI Story Agent
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            Turn a &quot;What if&quot; into a short
+          </h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-zinc-500">
+            Script, scenes, image prompts, voiceover, and subtitles—one pipeline.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-8">
+          <aside className="space-y-6">
+            <TopicForm
+              topic={topic}
+              onTopicChange={setTopic}
+              onSubmit={handleGenerate}
+              isGenerating={isGenerating}
+              disabled={!topic.trim()}
+            />
+            <PipelineProgress
+              currentStepIndex={currentStepIndex}
+              isGenerating={isGenerating}
+              isComplete={isComplete}
+            />
+          </aside>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          <ResultsPanel
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            results={results}
+            hasResults={Boolean(results)}
+          />
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </main>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <footer className="border-t border-white/8 py-4 text-center text-xs text-zinc-600">
+        Backend not connected — UI preview with mock pipeline timing
+      </footer>
+    </div>
   )
 }
-
-export default App
