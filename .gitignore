@@ -1,0 +1,132 @@
+# --- Dependencies ---
+node_modules/
+.pnp
+.pnp.js
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+.nox/
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials.json
+service-account*.json
+
+# --- Build & tooling ---
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# Vite
+.vite/
+
+# --- Generated media (shorts / exports) ---
+output/
+outputs/
+generated/
+exports/
+renders/
+shorts/
+temp/
+tmp/
+scratch/
+uploads/
+downloads/
+# Uncomment if you never commit media into the repo:
+# *.mp4
+# *.mov
+# *.webm
+# *.wav
+# *.mp3
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# --- Editors & IDEs ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*~
+
+# --- Misc ---
+*.local
+*.bak
+*.tmp
+*.temp
+.npm
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Large local models / weights (keep out of git)
+models/
+weights/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.bin
+*.safetensors
