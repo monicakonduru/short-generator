@@ -52,4 +52,4 @@ Style:
     )
 
     script = response.choices[0].message.content
-    return {"topic": topic, "style": style, "script": script}
+    return {"script": script}
