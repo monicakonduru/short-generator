@@ -35,22 +35,20 @@ def generate_script(body: GenerateScriptRequest):
     if not style:
         raise HTTPException(status_code=400, detail="Style is required")
 
+    style_traits = [t.strip() for t in style.replace("\n", ",").split(",") if t.strip()]
+    style_lines = "\n".join(f"- {trait}" for trait in style_traits)
+
+    prompt = f"""
+Write a cinematic storytelling YouTube script
+about {topic}.
+
+Style:
+{style_lines}
+""".strip()
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You write engaging narration scripts for vertical YouTube shorts. "
-                    "Match the requested tone and style. "
-                    "Keep it under 150 words, hook in the first line, end with a punch."
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Write a {style} style script for: {topic}",
-            },
-        ],
+        messages=[{"role": "user", "content": prompt}],
     )
 
     script = response.choices[0].message.content
